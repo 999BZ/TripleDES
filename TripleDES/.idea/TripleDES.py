@@ -41,6 +41,8 @@ class TripleDesGUI:
         self.submit_button = tk.Button(self.master, text="Submit", font=("Montserrat thin", 14),background='white', command=self.start)
         self.submit_button.pack(pady=20)
 
+        #initialization vector:
+        self.iv = os.urandom(DES3.block_size)
 
     def select_file(self):
         #menu for file:
@@ -58,7 +60,28 @@ class TripleDesGUI:
         if not key:
             messagebox.showerror("Error", "Please enter a key.")
             return
+        #padding the key:
+        key = pad(key, DES3.block_size*2, style='pkcs7')
 
+        #see if a file has been selected:
+        try:
+            with open(self.filename, "rb") as f:
+                data = f.read()
+        except AttributeError:
+            messagebox.showerror("Error", "Please select a file.")
+            return
+
+        #get action of either Encryption or Decryption from the form:
+        action = self.action_var.get()
+
+        #encryption:
+        if action == "encrypt":
+            iv = os.urandom(DES3.block_size)
+            cipher = DES3.new(key, DES3.MODE_CBC, iv=iv)
+            ciphertext = binascii.hexlify(cipher.encrypt(pad(data, DES3.block_size, style='pkcs7')))
+            output_filename = os.path.splitext(self.filename)[0] + "_encrypted" + os.path.splitext(self.filename)[1]
+            iv_hex = hexlify(iv)
+            ciphertext = iv_hex + ciphertext
         
 if __name__ == "__main__":
     root = tk.Tk()
