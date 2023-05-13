@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from Crypto.Cipher import DES3
+from Crypto.Util.Padding import pad, unpad
 import os
+import binascii
+from binascii import hexlify,unhexlify
 
 class TripleDesGUI:
     def __init__(self, master):
