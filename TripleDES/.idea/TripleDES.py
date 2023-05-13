@@ -86,6 +86,24 @@ class TripleDesGUI:
             output_filename = os.path.splitext(self.filename)[0] + "_encrypted" + os.path.splitext(self.filename)[1]
             iv_hex = hexlify(iv)
             ciphertext = iv_hex + ciphertext
+        else:
+            #decryption
+            iv_hex = data[:DES3.block_size2].decode('utf-8')
+            iv = binascii.unhexlify(iv_hex)
+            cipher = DES3.new(key, DES3.MODE_CBC, iv=iv)
+            plaintext = unpad(cipher.decrypt(binascii.unhexlify(data[DES3.block_size2:])), DES3.block_size, style='pkcs7')
+            output_extension = os.path.splitext(self.filename)[1]
+            if output_extension == ".txt":
+                output_filename = os.path.splitext(self.filename)[0] + "_decrypted.txt"
+            else:
+                output_filename = os.path.splitext(self.filename)[0] + "_decrypted" + output_extension
+
+        #output the file
+        with open(output_filename, "wb") as f:
+            f.write(ciphertext if action == "encrypt" else plaintext)
+
+        #indicator that everything went as planned
+        messagebox.showinfo("Complete", "Operation complete. Output file: " + output_filename)
         
 if __name__ == "__main__":
     root = tk.Tk()
